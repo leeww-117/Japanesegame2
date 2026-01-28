@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>五十音道場</title>
+    <!-- 引入日系風格字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Zen+Antique&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-paper: #f9f7f2; /* 和紙色 */
+            --ink-black: #2b2b2b; /* 墨色 */
+            --torii-red: #c93a40; /* 鳥居紅 */
+            --indigo-blue: #2d4059; /* 靛藍 */
+            --gold-accent: #d4af37;
+            --success-color: #ef474d; /* 批改圈圈紅 */
+            --text-main: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222; /* 瀏覽器背景深色，凸顯手機框 */
+            font-family: 'Zen Antique', 'Noto Serif JP', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        /* 手機模擬容器 */
+        #app-container {
+            width: 100%;
+            max-width: 414px; /* iPhone Max 寬度 */
+            height: 100vh;
+            max-height: 896px;
+            background-color: var(--bg-paper);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23dcd6cb' fill-opacity='0.25'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        /* 裝飾元素 */
+        .decoration-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: repeating-linear-gradient(45deg, var(--indigo-blue), var(--indigo-blue) 10px, var(--bg-paper) 10px, var(--bg-paper) 20px);
+            z-index: 10;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1);
+            z-index: 5;
+        }
+
+        /* 標題樣式 */
+        h1 {
+            font-size: 3rem;
+            color: var(--ink-black);
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 0 rgba(200, 0, 0, 0.1);
+            letter-spacing: 0.2rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--torii-red);
+            letter-spacing: 0.3rem;
+            margin-bottom: 3rem;
+            border-top: 1px solid var(--torii-red);
+            border-bottom: 1px solid var(--torii-red);
+            padding: 5px 15px;
+        }
+
+        /* 按鈕樣式 */
+        .btn-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--indigo-blue);
+            color: var(--indigo-blue);
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 80%;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn span {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: var(--indigo-blue);
+            transition: width 0.3s;
+            z-index: -1;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn.primary {
+            background: var(--torii-red);
+            border-color: var(--torii-red);
+            color: white;
+            box-shadow: 0 4px 15px rgba(201, 58, 64, 0.4);
+        }
+
+        .btn.special {
+            background: var(--indigo-blue);
+            color: white;
+            border-color: var(--indigo-blue);
+        }
+
+        /* 遊戲介面 - 通用 */
+        .game-header {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            padding: 0 25px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            color: var(--indigo-blue);
+            font-size: 1.2rem;
+            z-index: 20;
+        }
+
+        /* 模式 A: 單字卡 (大字 + 4選項) */
+        .card-wrapper {
+            width: 200px;
+            height: 200px;
+            perspective: 1000px;
+            margin-bottom: 20px;
+            position: relative;
+            display: none; /* 預設隱藏，視模式開啟 */
+        }
+        .card-wrapper.active { display: block; }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 20px;
+            border: 4px solid var(--indigo-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 6rem;
+            box-shadow: 10px 10px 0 rgba(45, 64, 89, 0.15);
+            position: relative;
+        }
+
+        /* 語音按鈕 */
+        .audio-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--indigo-blue);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-size: 1.2rem;
+            transition: transform 0.1s;
+        }
+        .audio-btn:active { transform: scale(0.9); }
+
+        .options-grid {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            max-width: 340px;
+        }
+        .options-grid.active { display: grid; }
+
+        .option-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            font-size: 1.5rem;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .option-btn:active { background: #f0f0f0; }
+
+        /* 模式 B: 拼句 (句子 + 拼圖) */
+        .sentence-wrapper {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .sentence-wrapper.active { display: flex; }
+
+        .sentence-display {
+            font-size: 2.2rem;
+            color: var(--indigo-blue);
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .sentence-meaning {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .answer-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 60px;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-bottom: 2px dashed #ccc;
+            width: 100%;
+        }
+
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            width: 100%;
+            max-width: 380px;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+
+        .word-chip {
+            background: white;
+            border: 2px solid var(--indigo-blue);
+            color: var(--indigo-blue);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 0 rgba(45, 64, 89, 0.2);
+            transition: transform 0.1s;
+        }
+        .word-chip:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+        .word-chip.used {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* 放在答案區的樣式 */
+        .answer-chip {
+            background: var(--torii-red);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes popIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        /* 對錯反饋層 */
+        .feedback-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 10rem;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+        }
+
+        .feedback-overlay.correct {
+            color: var(--success-color); /* 紅圈 */
+            border: 8px solid var(--success-color);
+            border-radius: 50%;
+            width: 160px;
+            height: 160px;
+        }
+
+        .feedback-overlay.wrong {
+            color: var(--indigo-blue);
+        }
+        .feedback-overlay.wrong::before, .feedback-overlay.wrong::after {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 10px;
+            background: var(--indigo-blue);
+            border-radius: 5px;
+        }
+        .feedback-overlay.wrong::before { transform: rotate(45deg); }
+        .feedback-overlay.wrong::after { transform: rotate(-45deg); }
+
+        /* 錯誤答案顯示區 */
+        .correction-box {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid var(--torii-red);
+            color: var(--torii-red);
+            font-weight: bold;
+            text-align: center;
+            width: 80%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 30;
+        }
+        .correction-box.visible { opacity: 1; }
+        .correction-label { font-size: 0.9rem; color: #666; display: block; margin-bottom: 5px; }
+        .correction-text { font-size: 1.5rem; }
+
+        /* 進度條 */
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--torii-red);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* 結算畫面 */
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border: 5px solid var(--torii-red);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0 40px 0;
+            color: var(--torii-red);
+            background: white;
+            mask-image: url("data:image/svg+xml;utf8,<svg width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><filter id='noise'><feTurbulence type='fractalNoise' baseFrequency='0.8' result='noise'/><feColorMatrix type='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.6 0' in='noise' result='coloredNoise'/><feComposite operator='in' in='coloredNoise' in2='SourceGraphic' result='composite'/></filter><rect width='100%' height='100%' fill='white'/></svg>");
+        }
+
+        .score-num {
+            font-size: 4rem;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .score-label {
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .rank-text {
+            font-size: 1.5rem;
+            color: var(--indigo-blue);
+            margin-bottom: 40px;
+            font-weight: bold;
+        }
+
+        /* 櫻花動畫 (純CSS) */
+        .sakura {
+            position: absolute;
+            background-color: #ffd7e6;
+            width: 10px;
+            height: 10px;
+            border-radius: 10px 0px;
+            z-index: 1;
+            opacity: 0.6;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { top: -10%; transform: rotate(0deg) translateX(0); }
+            100% { top: 110%; transform: rotate(360deg) translateX(50px); }
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div class="decoration-top"></div>
+    
+    <!-- 櫻花容器 -->
+    <div id="sakura-container"></div>
+
+    <!-- 1. 首頁/選單 -->
+    <div id="screen-home" class="screen active">
+        <h1>五十音<br>道場</h1>
+        <div class="subtitle">日本語の練習</div>
+        
+        <div class="btn-group">
+            <button class="btn" onclick="game.start('easy')">
+                <span>入門</span>
+                初級 (平假名)
+            </button>
+            <button class="btn" onclick="game.start('medium')">
+                <span>基礎</span>
+                中級 (片假名)
+            </button>
+            <button class="btn primary" onclick="game.start('hard')">
+                <span>達人</span>
+                上級 (混合+濁音)
+            </button>
+            <button class="btn special" onclick="game.start('sentence')">
+                <span>實戰</span>
+                詞彙拼寫 (排序)
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. 遊戲進行中 -->
+    <div id="screen-game" class="screen">
+        <div class="game-header">
+            <span id="label-mode">初級</span>
+            <span><span id="score-current">0</span> Pt</span>
+        </div>
+
+        <!-- 語音按鈕 (放在卡片上方或題目旁) -->
+        <button id="btn-audio" class="audio-btn" onclick="game.speakCurrent()">
+            🔊
+        </button>
+
+        <!-- 模式 A: 單字辨識 -->
+        <div id="wrapper-single" class="card-wrapper">
+            <div class="card">
+                <span id="q-char">あ</span>
+            </div>
+        </div>
+
+        <!-- 模式 B: 句子拼寫 -->
+        <div id="wrapper-sentence" class="sentence-wrapper">
+            <div class="sentence-display" id="s-kana">ありがとう</div>
+            <div class="sentence-meaning" id="s-meaning">謝謝</div>
+            
+            <div class="answer-area" id="s-answer-area">
+                <!-- 玩家選的字會出現在這 -->
+            </div>
+            <div class="word-pool" id="s-pool">
+                <!-- 亂序的按鈕 -->
+            </div>
+        </div>
+
+        <!-- 正確/錯誤動畫層 -->
+        <div id="feedback-icon" class="feedback-overlay"></div>
+
+        <!-- 錯誤答案提示 -->
+        <div id="correction-box" class="correction-box">
+            <span class="correction-label">正解は</span>
+            <span id="correction-text" class="correction-text">Answer</span>
+        </div>
+
+        <!-- 模式 A 的選項 -->
+        <div class="options-grid" id="options-box">
+            <!-- JS 動態生成按鈕 -->
+        </div>
+
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- 3. 結算畫面 -->
+    <div id="screen-result" class="screen">
+        <h2>修練終了</h2>
+        
+        <div class="score-circle">
+            <span class="score-num" id="score-final">80</span>
+            <span class="score-label">點</span>
+        </div>
+
+        <div class="rank-text" id="rank-text">
+            よくできました！
+        </div>
+
+        <div class="btn-group">
+            <button class="btn primary" onclick="ui.showScreen('home')">返回道場</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 資料庫 ---
+    const KANA_DATA = {
+        hiragana: [
+            {c:'あ', r:'a'}, {c:'い', r:'i'}, {c:'う', r:'u'}, {c:'え', r:'e'}, {c:'お', r:'o'},
+            {c:'か', r:'ka'}, {c:'き', r:'ki'}, {c:'く', r:'ku'}, {c:'け', r:'ke'}, {c:'こ', r:'ko'},
+            {c:'さ', r:'sa'}, {c:'し', r:'shi'}, {c:'す', r:'su'}, {c:'せ', r:'se'}, {c:'そ', r:'so'},
+            {c:'た', r:'ta'}, {c:'ち', r:'chi'}, {c:'つ', r:'tsu'}, {c:'て', r:'te'}, {c:'と', r:'to'},
+            {c:'な', r:'na'}, {c:'に', r:'ni'}, {c:'ぬ', r:'nu'}, {c:'ね', r:'ne'}, {c:'の', r:'no'},
+            {c:'は', r:'ha'}, {c:'ひ', r:'hi'}, {c:'ふ', r:'fu'}, {c:'へ', r:'he'}, {c:'ほ', r:'ho'},
+            {c:'ま', r:'ma'}, {c:'み', r:'mi'}, {c:'む', r:'mu'}, {c:'め', r:'me'}, {c:'も', r:'mo'},
+            {c:'や', r:'ya'}, {c:'ゆ', r:'yu'}, {c:'よ', r:'yo'},
+            {c:'ら', r:'ra'}, {c:'り', r:'ri'}, {c:'る', r:'ru'}, {c:'れ', r:'re'}, {c:'ろ', r:'ro'},
+            {c:'わ', r:'wa'}, {c:'を', r:'wo'}, {c:'ん', r:'n'}
+        ],
+        katakana: [
+            {c:'ア', r:'a'}, {c:'イ', r:'i'}, {c:'ウ', r:'u'}, {c:'エ', r:'e'}, {c:'オ', r:'o'},
+            {c:'カ', r:'ka'}, {c:'キ', r:'ki'}, {c:'ク', r:'ku'}, {c:'ケ', r:'ke'}, {c:'コ', r:'ko'},
+            {c:'サ', r:'sa'}, {c:'シ', r:'shi'}, {c:'ス', r:'su'}, {c:'セ', r:'se'}, {c:'ソ', r:'so'},
+            {c:'タ', r:'ta'}, {c:'チ', r:'chi'}, {c:'ツ', r:'tsu'}, {c:'テ', r:'te'}, {c:'ト', r:'to'},
+            {c:'ナ', r:'na'}, {c:'ニ', r:'ni'}, {c:'ヌ', r:'nu'}, {c:'ネ', r:'ne'}, {c:'ノ', r:'no'},
+            {c:'ハ', r:'ha'}, {c:'ヒ', r:'hi'}, {c:'フ', r:'fu'}, {c:'ヘ', r:'he'}, {c:'ホ', r:'ho'},
+            {c:'マ', r:'ma'}, {c:'ミ', r:'mi'}, {c:'ム', r:'mu'}, {c:'メ', r:'me'}, {c:'モ', r:'mo'},
+            {c:'ヤ', r:'ya'}, {c:'ユ', r:'yu'}, {c:'ヨ', r:'yo'},
+            {c:'ラ', r:'ra'}, {c:'リ', r:'ri'}, {c:'ル', r:'ru'}, {c:'レ', r:'re'}, {c:'ロ', r:'ro'},
+            {c:'ワ', r:'wa'}, {c:'ヲ', r:'wo'}, {c:'ン', r:'n'}
+        ],
+        advanced: [
+            {c:'が', r:'ga'}, {c:'ぎ', r:'gi'}, {c:'ぐ', r:'gu'}, {c:'げ', r:'ge'}, {c:'ご', r:'go'},
+            {c:'ざ', r:'za'}, {c:'じ', r:'ji'}, {c:'ず', r:'zu'}, {c:'ぜ', r:'ze'}, {c:'ぞ', r:'zo'},
+            {c:'だ', r:'da'}, {c:'ぢ', r:'ji'}, {c:'づ', r:'zu'}, {c:'で', r:'de'}, {c:'ど', r:'do'},
+            {c:'ば', r:'ba'}, {c:'び', r:'bi'}, {c:'ぶ', r:'bu'}, {c:'べ', r:'be'}, {c:'ぼ', r:'bo'},
+            {c:'ぱ', r:'pa'}, {c:'ぴ', r:'pi'}, {c:'ぷ', r:'pu'}, {c:'ぺ', r:'pe'}, {c:'ぽ', r:'po'},
+            {c:'きゃ', r:'kya'}, {c:'しゃ', r:'sha'}, {c:'ちゃ', r:'cha'}, {c:'にゃ', r:'nya'}, 
+            {c:'ひゃ', r:'hya'}, {c:'みゃ', r:'mya'}, {c:'りゃ', r:'rya'},
+            {c:'ギョ', r:'gyo'}, {c:'ジャ', r:'ja'}, {c:'ビュ', r:'byu'}, {c:'ピョ', r:'pyo'}
+        ],
+        // 擴充後的題庫：約120個常用詞彙
+        sentences: [
+            // 問候
+            { t: 'ありがとう', m: '謝謝', p: ['a', 'ri', 'ga', 'to', 'u'] },
+            { t: 'こんにちは', m: '你好 (午安)', p: ['ko', 'n', 'ni', 'chi', 'ha'] },
+            { t: 'おはよう', m: '早安', p: ['o', 'ha', 'yo', 'u'] },
+            { t: 'さようなら', m: '再見', p: ['sa', 'yo', 'u', 'na', 'ra'] },
+            { t: 'すみません', m: '不好意思', p: ['su', 'mi', 'ma', 'se', 'n'] },
+            { t: 'ごめんなさい', m: '對不起', p: ['go', 'me', 'n', 'na', 'sa', 'i'] },
+            { t: 'はじめまして', m: '初次見面', p: ['ha', 'ji', 'me', 'ma', 'shi', 'te'] },
+            { t: 'おねがいします', m: '麻煩你了/請', p: ['o', 'ne', 'ga', 'i', 'shi', 'ma', 'su'] },
+            
+            // 人物/代名詞
+            { t: 'わたし', m: '我', p: ['wa', 'ta', 'shi'] },
+            { t: 'あなた', m: '你', p: ['a', 'na', 'ta'] },
+            { t: 'せんせい', m: '老師', p: ['se', 'n', 'se', 'i'] },
+            { t: 'がくせい', m: '學生', p: ['ga', 'ku', 'se', 'i'] },
+            { t: 'ともだち', m: '朋友', p: ['to', 'mo', 'da', 'chi'] },
+            { t: 'かぞく', m: '家人', p: ['ka', 'zo', 'ku'] },
+            { t: 'おとうさん', m: '父親 (敬稱)', p: ['o', 'to', 'u', 'sa', 'n'] },
+            { t: 'おかあさん', m: '母親 (敬稱)', p: ['o', 'ka', 'a', 'sa', 'n'] },
+            { t: 'こども', m: '小孩', p: ['ko', 'do', 'mo'] },
+            { t: 'おとな', m: '大人', p: ['o', 'to', 'na'] },
+
+            // 食物
+            { t: 'ごはん', m: '飯', p: ['go', 'ha', 'n'] },
+            { t: 'パン', m: '麵包', p: ['pa', 'n'] },
+            { t: 'みず', m: '水', p: ['mi', 'zu'] },
+            { t: 'おちゃ', m: '茶', p: ['o', 'cha'] },
+            { t: 'ぎゅうにゅう', m: '牛奶', p: ['gyu', 'u', 'nyu', 'u'] },
+            { t: 'さかな', m: '魚', p: ['sa', 'ka', 'na'] },
+            { t: 'にく', m: '肉', p: ['ni', 'ku'] },
+            { t: 'やさい', m: '蔬菜', p: ['ya', 'sa', 'i'] },
+            { t: 'くだもの', m: '水果', p: ['ku', 'da', 'mo', 'no'] },
+            { t: 'りんご', m: '蘋果', p: ['ri', 'n', 'go'] },
+            { t: 'たまご', m: '雞蛋', p: ['ta', 'ma', 'go'] },
+            { t: 'おいしい', m: '好吃', p: ['o', 'i', 'shi', 'i'] },
+            { t: 'いただきます', m: '開動了', p: ['i', 'ta', 'da', 'ki', 'ma', 'su'] },
+            { t: 'ごちそうさま', m: '謝謝招待', p: ['go', 'chi', 'so', 'u', 'sa', 'ma'] },
+
+            // 動物
+            { t: 'いぬ', m: '狗', p: ['i', 'nu'] },
+            { t: 'ねこ', m: '貓', p: ['ne', 'ko'] },
+            { t: 'とり', m: '鳥', p: ['to', 'ri'] },
+            { t: 'うさぎ', m: '兔子', p: ['u', 'sa', 'gi'] },
+            { t: 'うま', m: '馬', p: ['u', 'ma'] },
+            
+            // 時間
+            { t: 'いま', m: '現在', p: ['i', 'ma'] },
+            { t: 'きょう', m: '今天', p: ['kyo', 'u'] },
+            { t: 'きのう', m: '昨天', p: ['ki', 'no', 'u'] },
+            { t: 'あした', m: '明天', p: ['a', 'shi', 'ta'] },
+            { t: 'あさ', m: '早上', p: ['a', 'sa'] },
+            { t: 'ひる', m: '中午', p: ['hi', 'ru'] },
+            { t: 'ばん', m: '晚上', p: ['ba', 'n'] },
+            { t: 'まいにち', m: '每天', p: ['ma', 'i', 'ni', 'chi'] },
+
+            // 自然/場所
+            { t: 'やま', m: '山', p: ['ya', 'ma'] },
+            { t: 'かわ', m: '河川', p: ['ka', 'wa'] },
+            { t: 'うみ', m: '海', p: ['u', 'mi'] },
+            { t: 'そら', m: '天空', p: ['so', 'ra'] },
+            { t: 'あめ', m: '雨', p: ['a', 'me'] },
+            { t: 'ゆき', m: '雪', p: ['yu', 'ki'] },
+            { t: 'はな', m: '花', p: ['ha', 'na'] },
+            { t: 'き', m: '樹', p: ['ki'] },
+            { t: 'いえ', m: '家', p: ['i', 'e'] },
+            { t: 'がっこう', m: '學校', p: ['ga', 'kko', 'u'] },
+            { t: 'へや', m: '房間', p: ['he', 'ya'] },
+            { t: 'トイレ', m: '廁所', p: ['to', 'i', 're'] },
+
+            // 形容詞
+            { t: 'おおきい', m: '大的', p: ['o', 'o', 'ki', 'i'] },
+            { t: 'ちいさい', m: '小的', p: ['chi', 'i', 'sa', 'i'] },
+            { t: 'あたらしい', m: '新的', p: ['a', 'ta', 'ra', 'shi', 'i'] },
+            { t: 'ふるい', m: '舊的', p: ['fu', 'ru', 'i'] },
+            { t: 'あつい', m: '熱的', p: ['a', 'tsu', 'i'] },
+            { t: 'さむい', m: '冷的 (天氣)', p: ['sa', 'mu', 'i'] },
+            { t: 'いい', m: '好的', p: ['i', 'i'] },
+            { t: 'わるい', m: '壞的', p: ['wa', 'ru', 'i'] },
+            { t: 'おもしろい', m: '有趣的', p: ['o', 'mo', 'shi', 'ro', 'i'] },
+            { t: 'たのしい', m: '開心的', p: ['ta', 'no', 'shi', 'i'] },
+            { t: 'むずかしい', m: '困難的', p: ['mu', 'zu', 'ka', 'shi', 'i'] },
+            { t: 'やさしい', m: '簡單的/溫柔的', p: ['ya', 'sa', 'shi', 'i'] },
+            { t: 'たかい', m: '高的/貴的', p: ['ta', 'ka', 'i'] },
+            { t: 'やすい', m: '便宜的', p: ['ya', 'su', 'i'] },
+            { t: 'すき', m: '喜歡', p: ['su', 'ki'] },
+            { t: 'きらい', m: '討厭', p: ['ki', 'ra', 'i'] },
+            { t: 'きれい', m: '漂亮/乾淨', p: ['ki', 're', 'i'] },
+            { t: 'げんき', m: '有精神', p: ['ge', 'n', 'ki'] },
+
+            // 動詞
+            { t: 'たべます', m: '吃', p: ['ta', 'be', 'ma', 'su'] },
+            { t: 'のみます', m: '喝', p: ['no', 'mi', 'ma', 'su'] },
+            { t: 'みます', m: '看', p: ['mi', 'ma', 'su'] },
+            { t: 'ききます', m: '聽', p: ['ki', 'ki', 'ma', 'su'] },
+            { t: 'いきます', m: '去', p: ['i', 'ki', 'ma', 'su'] },
+            { t: 'きます', m: '來', p: ['ki', 'ma', 'su'] },
+            { t: 'かえります', m: '回家', p: ['ka', 'e', 'ri', 'ma', 'su'] },
+            { t: 'かいます', m: '買', p: ['ka', 'i', 'ma', 'su'] },
+            { t: 'よみます', m: '讀', p: ['yo', 'mi', 'ma', 'su'] },
+            { t: 'かきます', m: '寫', p: ['ka', 'ki', 'ma', 'su'] },
+            { t: 'はなします', m: '說話', p: ['ha', 'na', 'shi', 'ma', 'su'] },
+            { t: 'ねます', m: '睡覺', p: ['ne', 'ma', 'su'] },
+            { t: 'おきます', m: '起床', p: ['o', 'ki', 'ma', 'su'] },
+            { t: 'あそびます', m: '玩', p: ['a', 'so', 'bi', 'ma', 'su'] },
+            { t: 'べんきょう', m: '學習', p: ['be', 'n', 'kyo', 'u'] },
+            
+            // 身體
+            { t: 'あたま', m: '頭', p: ['a', 'ta', 'ma'] },
+            { t: 'め', m: '眼睛', p: ['me'] },
+            { t: 'みみ', m: '耳朵', p: ['mi', 'mi'] },
+            { t: 'くち', m: '嘴巴', p: ['ku', 'chi'] },
+            { t: 'て', m: '手', p: ['te'] },
+            { t: 'あし', m: '腳', p: ['a', 'shi'] },
+
+            // 物品
+            { t: 'ほん', m: '書', p: ['ho', 'n'] },
+            { t: 'じしょ', m: '字典', p: ['ji', 'sho'] },
+            { t: 'えんぴつ', m: '鉛筆', p: ['e', 'n', 'pi', 'tsu'] },
+            { t: 'かさ', m: '傘', p: ['ka', 'sa'] },
+            { t: 'かばん', m: '包包', p: ['ka', 'ba', 'n'] },
+            { t: 'とけい', m: '時鐘/手錶', p: ['to', 'ke', 'i'] },
+            { t: 'くるま', m: '車', p: ['ku', 'ru', 'ma'] },
+            { t: 'でんしゃ', m: '電車', p: ['de', 'n', 'sha'] },
+            { t: 'お金', m: '錢', p: ['o', 'ka', 'ne'] }, // おかね
+        ]
+    };
+
+    // --- 遊戲邏輯 ---
+    const game = {
+        totalQuestions: 10,
+        currentQIndex: 0,
+        score: 0,
+        mode: 'easy', 
+        questions: [],
+        isAnswering: false,
+        
+        // 拼字模式的狀態
+        currentAnswer: [],
+        targetAnswer: [],
+
+        start: function(level) {
+            this.mode = level;
+            this.score = 0;
+            this.currentQIndex = 0;
+            this.questions = this.generateQuestions(level);
+            
+            document.getElementById('score-current').innerText = '0';
+            let label = '初級';
+            if(level === 'medium') label = '中級';
+            if(level === 'hard') label = '上級';
+            if(level === 'sentence') label = '實戰 • 詞彙';
+            document.getElementById('label-mode').innerText = label;
+            
+            // 切換對應的 DOM 顯示
+            if (level === 'sentence') {
+                document.getElementById('wrapper-single').classList.remove('active');
+                document.getElementById('options-box').classList.remove('active');
+                document.getElementById('wrapper-sentence').classList.add('active');
+            } else {
+                document.getElementById('wrapper-single').classList.add('active');
+                document.getElementById('options-box').classList.add('active');
+                document.getElementById('wrapper-sentence').classList.remove('active');
+            }
+
+            ui.showScreen('game');
+            this.nextQuestion();
+        },
+
+        generateQuestions: function(level) {
+            let pool = [];
+            
+            if (level === 'sentence') {
+                pool = [...KANA_DATA.sentences];
+                pool.sort(() => Math.random() - 0.5);
+                return pool.slice(0, this.totalQuestions);
+            }
+
+            if (level === 'easy') pool = [...KANA_DATA.hiragana];
+            else if (level === 'medium') pool = [...KANA_DATA.katakana];
+            else pool = [...KANA_DATA.hiragana, ...KANA_DATA.katakana, ...KANA_DATA.advanced];
+            
+            pool.sort(() => Math.random() - 0.5);
+            return pool.slice(0, this.totalQuestions).map(q => {
+                let distractors = pool.filter(x => x.r !== q.r);
+                distractors.sort(() => Math.random() - 0.5);
+                let options = [q, ...distractors.slice(0, 3)];
+                options.sort(() => Math.random() - 0.5);
+                return { question: q, options: options };
+            });
+        },
+
+        nextQuestion: function() {
+            if (this.currentQIndex >= this.totalQuestions) {
+                this.end();
+                return;
+            }
+
+            this.isAnswering = false;
+            
+            // 重置反饋與提示
+            const feedback = document.getElementById('feedback-icon');
+            feedback.className = 'feedback-overlay';
+            feedback.style.opacity = '0';
+            feedback.style.transform = 'translate(-50%, -50%) scale(0)';
+            
+            document.getElementById('correction-box').classList.remove('visible');
+
+            // 進度條
+            const progress = (this.currentQIndex / this.totalQuestions) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+
+            if (this.mode === 'sentence') {
+                this.renderSentenceQuestion();
+            } else {
+                this.renderNormalQuestion();
+            }
+        },
+
+        // 朗讀功能
+        speakCurrent: function() {
+            let textToSpeak = '';
+            const qData = this.questions[this.currentQIndex];
+
+            if (this.mode === 'sentence') {
+                textToSpeak = qData.t; // 念日文句子
+            } else {
+                textToSpeak = qData.question.c; // 念假名
+            }
+
+            if ('speechSynthesis' in window) {
+                // 取消之前的發音
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'ja-JP';
+                utterance.rate = 0.9; // 稍微慢一點點
+                
+                // 嘗試尋找日文語音
+                const voices = window.speechSynthesis.getVoices();
+                const jpVoice = voices.find(v => v.lang.includes('ja') || v.lang.includes('JP'));
+                if (jpVoice) utterance.voice = jpVoice;
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.log("瀏覽器不支援發音 API");
+            }
+        },
+
+        // 渲染一般模式
+        renderNormalQuestion: function() {
+            const qData = this.questions[this.currentQIndex];
+            document.getElementById('q-char').innerText = qData.question.c;
+            
+            const optionsBox = document.getElementById('options-box');
+            optionsBox.innerHTML = '';
+
+            qData.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.r;
+                btn.onclick = () => this.checkAnswer(opt.r, qData.question.r);
+                optionsBox.appendChild(btn);
+            });
+        },
+
+        // 渲染拼字模式
+        renderSentenceQuestion: function() {
+            const qData = this.questions[this.currentQIndex];
+            this.targetAnswer = [...qData.p];
+            this.currentAnswer = [];
+            
+            document.getElementById('s-kana').innerText = qData.t;
+            document.getElementById('s-meaning').innerText = qData.m;
+            
+            const answerArea = document.getElementById('s-answer-area');
+            const poolArea = document.getElementById('s-pool');
+            answerArea.innerHTML = '';
+            poolArea.innerHTML = '';
+
+            // 生成亂序選項
+            let shuffledParts = qData.p.map((part, index) => ({ val: part, id: index }));
+            shuffledParts.sort(() => Math.random() - 0.5);
+
+            shuffledParts.forEach(item => {
+                const chip = document.createElement('div');
+                chip.className = 'word-chip';
+                chip.innerText = item.val;
+                chip.dataset.val = item.val;
+                chip.dataset.id = item.id;
+                
+                chip.onclick = () => this.addWordPart(chip, item);
+                poolArea.appendChild(chip);
+            });
+        },
+
+        addWordPart: function(chipElement, itemData) {
+            if (this.isAnswering) return;
+            
+            this.currentAnswer.push(itemData.val);
+            chipElement.classList.add('used');
+
+            const ansChip = document.createElement('button');
+            ansChip.className = 'answer-chip';
+            ansChip.innerText = itemData.val;
+            ansChip.onclick = () => this.removeWordPart(ansChip, chipElement, itemData.val);
+            
+            document.getElementById('s-answer-area').appendChild(ansChip);
+
+            if (this.currentAnswer.length === this.targetAnswer.length) {
+                this.checkSentenceAnswer();
+            }
+        },
+
+        removeWordPart: function(ansChip, originalChip, val) {
+            if (this.isAnswering) return;
+            ansChip.remove();
+            originalChip.classList.remove('used');
+            const idx = this.currentAnswer.lastIndexOf(val);
+            if (idx > -1) this.currentAnswer.splice(idx, 1);
+        },
+
+        checkSentenceAnswer: function() {
+            this.isAnswering = true;
+            const isCorrect = JSON.stringify(this.currentAnswer) === JSON.stringify(this.targetAnswer);
+            
+            this.showFeedback(isCorrect, this.targetAnswer.join(' - '));
+        },
+
+        checkAnswer: function(selected, correct) {
+            if (this.isAnswering) return;
+            this.isAnswering = true;
+            const isCorrect = selected === correct;
+            
+            this.showFeedback(isCorrect, correct);
+        },
+
+        showFeedback: function(isCorrect, correctText) {
+            const feedback = document.getElementById('feedback-icon');
+            
+            if (isCorrect) {
+                this.score += 10;
+                feedback.classList.add('correct');
+                feedback.classList.remove('wrong');
+                // 答對也播放語音 (可選)
+                // this.speakCurrent(); 
+            } else {
+                feedback.classList.add('wrong');
+                feedback.classList.remove('correct');
+                
+                // 顯示正確答案
+                const correctionBox = document.getElementById('correction-box');
+                document.getElementById('correction-text').innerText = correctText;
+                correctionBox.classList.add('visible');
+                
+                // 答錯時自動朗讀正確發音
+                this.speakCurrent();
+            }
+
+            requestAnimationFrame(() => {
+                feedback.style.opacity = '1';
+                feedback.style.transform = 'translate(-50%, -50%) scale(1)';
+            });
+
+            document.getElementById('score-current').innerText = this.score;
+
+            // 根據答對或答錯調整等待時間
+            const waitTime = isCorrect ? 800 : 2500; // 答錯等 2.5 秒看答案
+
+            setTimeout(() => {
+                this.currentQIndex++;
+                this.nextQuestion();
+            }, waitTime);
+        },
+
+        end: function() {
+            ui.showScreen('result');
+            
+            let displayScore = 0;
+            const finalScoreEl = document.getElementById('score-final');
+            const rankTextEl = document.getElementById('rank-text');
+            
+            const timer = setInterval(() => {
+                if (displayScore >= this.score) {
+                    clearInterval(timer);
+                    displayScore = this.score;
+                } else {
+                    displayScore++;
+                }
+                finalScoreEl.innerText = displayScore;
+            }, 20);
+
+            if (this.score === 100) rankTextEl.innerText = "免許皆傳！(完美)";
+            else if (this.score >= 80) rankTextEl.innerText = "大変よくできました！";
+            else if (this.score >= 60) rankTextEl.innerText = "よくできました。";
+            else rankTextEl.innerText = "頑張ってください！";
+        }
+    };
+
+    // --- UI 控制 ---
+    const ui = {
+        showScreen: function(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + id).classList.add('active');
+        },
+        
+        initSakura: function() {
+            const container = document.getElementById('sakura-container');
+            const sakuraCount = 10; 
+            
+            for(let i=0; i<sakuraCount; i++) {
+                let el = document.createElement('div');
+                el.className = 'sakura';
+                el.style.left = Math.random() * 100 + '%';
+                el.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                el.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(el);
+            }
+        }
+    };
+
+    window.onload = () => {
+        ui.initSakura();
+        
+        // 預先載入語音列表 (解決某些瀏覽器第一次沒聲音的問題)
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+        }
+    };
+
+</script>
+</body>
+</html>
